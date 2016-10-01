@@ -30,7 +30,7 @@ Import the module:
 
 Define your database schema, including upgrades.
 
-    const upgradeCallback = upgradeDB => {
+    const upgradeCallback = (err, upgradeDB) => {
         // Create object stores and indexes just like the raw IndexedDB API
 
         if (upgradeDB.oldVersion <= 0) {
@@ -173,7 +173,7 @@ Backboard removes some of that complexity (or call it "flexibilty" if you want t
         };
         backboard.on('quotaexceeded', cb);
 
-    There is a similar `db.off` function you can use to unsubscribe, like `db.off('quotaexceeded', cb);`.
+    There is a similar `db.off` function you can use to unsubscribe, like `db.end('quotaexceeded', cb);`.
 
     Another event you can listen for is the `versionchange` event, which you get when another instance of the database is trying to upgrade, such as in another tab. At a minimum, you probably want to close the connection so the upgrade can proceed:
 

@@ -11,7 +11,7 @@ describe('Index', () => {
             name: 'John Smith'
         };
 
-        return backboard.open('test', 1, upgradeDB => {
+        return backboard.open('test', 1, (err, upgradeDB) => {
                 const playerStore = upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                 playerStore.createIndex('tid', 'tid');
 
@@ -25,6 +25,7 @@ describe('Index', () => {
 
     afterEach(() => {
         db.close();
+        backboard.end();
         return backboard.delete('test');
     });
 

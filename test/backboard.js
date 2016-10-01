@@ -6,11 +6,12 @@ import Transaction from '../lib/Transaction';
 
 describe('backboard.open', () => {
     afterEach(() => {
+        backboard.end();
         return backboard.delete('test');
     });
 
     it('should create object stores', () => {
-        return backboard.open('test', 1, upgradeDB => {
+        return backboard.open('test', 1, (err, upgradeDB) => {
                 const playerStore = upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                 playerStore.createIndex('tid', 'tid');
 
@@ -24,7 +25,7 @@ describe('backboard.open', () => {
     });
 
     it('should allow access of newly-created stores on upgradeDB', () => {
-        return backboard.open('test', 1, upgradeDB => {
+        return backboard.open('test', 1, (err, upgradeDB) => {
                 upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
 
                 upgradeDB.players.put({pid: 2, name: 'Bob'})
@@ -35,7 +36,7 @@ describe('backboard.open', () => {
     });
 
     it('should remove access to deleted stores on upgradeDB', () => {
-        return backboard.open('test', 1, upgradeDB => {
+        return backboard.open('test', 1, (err, upgradeDB) => {
                 upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                 assert.equal(upgradeDB.hasOwnProperty('players'), true);
 
@@ -46,7 +47,7 @@ describe('backboard.open', () => {
     });
 
     it('should abort connection if error is thrown in upgrade function', () => {
-        return backboard.open('test', 1, upgradeDB => {
+        return backboard.open('test', 1, (err, upgradeDB) => {
                 upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                 throw new Error('foo');
             })
@@ -61,7 +62,7 @@ describe('backboard.open', () => {
 
         reservedNames.forEach(name => {
             it('should error when createObjectStore is called with "' + name + '"', () => {
-                return backboard.open('test', 1, upgradeDB => {
+                return backboard.open('test', 1, (err, upgradeDB) => {
                         upgradeDB.createObjectStore(name, {keyPath: 'key'});
                     })
                     .then(assert.fail)
@@ -91,7 +92,7 @@ describe('backboard.open', () => {
 
     describe('Schema upgrades', () => {
         beforeEach(() => {
-            return backboard.open('test', 1, upgradeDB => {
+            return backboard.open('test', 1, (err, upgradeDB) => {
                     const playerStore = upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                     playerStore.createIndex('tid', 'tid');
 
@@ -101,7 +102,7 @@ describe('backboard.open', () => {
         });
 
         it('should create new object store', () => {
-            return backboard.open('test', 2, upgradeDB => {
+            return backboard.open('test', 2, (err, upgradeDB) => {
                     upgradeDB.createObjectStore('games');
                 })
                 .then(db => {
@@ -111,7 +112,7 @@ describe('backboard.open', () => {
         });
 
         it('should delete obsolete object store', () => {
-            return backboard.open('test', 2, upgradeDB => {
+            return backboard.open('test', 2, (err, upgradeDB) => {
                     upgradeDB.deleteObjectStore('teams');
                 })
                 .then(db => {
@@ -121,7 +122,7 @@ describe('backboard.open', () => {
         });
 
         it('should create new index', () => {
-            return backboard.open('test', 2, upgradeDB => {
+            return backboard.open('test', 2, (err, upgradeDB) => {
                     upgradeDB.teams.createIndex('foo', 'foo', {unique: true});
                 })
                 .then(db => {
@@ -131,7 +132,7 @@ describe('backboard.open', () => {
         });
 
         it('should delete obsolete index', () => {
-            return backboard.open('test', 2, upgradeDB => {
+            return backboard.open('test', 2, (err, upgradeDB) => {
                     upgradeDB.players.deleteIndex('tid');
                 })
                 .then(db => {
@@ -152,7 +153,7 @@ describe('backboard.open', () => {
                         db.close();
                     });
 
-                    return backboard.open('test', 2, upgradeDB => {
+                    return backboard.open('test', 2, (err, upgradeDB) => {
                             upgradeDB.deleteObjectStore('teams');
                         })
                         .then(db2 => {
@@ -180,7 +181,7 @@ describe('backboard.open', () => {
                         db.close();
                     });
 
-                    return backboard.open('test', 2, upgradeDB => {
+                    return backboard.open('test', 2, (err, upgradeDB) => {
                             upgradeDB.deleteObjectStore('teams');
                         })
                         .then(db2 => {

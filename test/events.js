@@ -5,7 +5,7 @@ let db;
 
 describe('events', () => {
     beforeEach(() => {
-        return backboard.open('test', 1, upgradeDB => {
+        return backboard.open('test', 1, (err, upgradeDB) => {
                 const playerStore = upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                 playerStore.createIndex('tid', 'tid');
 
@@ -18,6 +18,7 @@ describe('events', () => {
 
     afterEach(() => {
         db.close();
+        backboard.end();
         return backboard.delete('test');
     });
 
@@ -32,13 +33,9 @@ describe('events', () => {
                 done(new Error('Removed listener was called'));
             };
             db.on('versionchange', toRemove);
-            db.off('versionchange', toRemove);
+            db.removeListener('versionchange', toRemove);
 
-            db._emit('versionchange', 'bar');
-        });
-
-        it('error on invalid listener name', () => {
-            assert.throws(() => db.on('foo', () => {}), /Invalid listener name "foo"/);
+            db.emit('versionchange', 'bar');
         });
     });
 
@@ -69,13 +66,9 @@ describe('events', () => {
                 done(new Error('Removed listener was called'));
             };
             backboard.on('quotaexceeded', toRemove);
-            backboard.off('quotaexceeded', toRemove);
+            backboard.end('quotaexceeded', toRemove);
 
-            backboard._emit('quotaexceeded', 'bar');
-        });
-
-        it('error on invalid listener name', () => {
-            assert.throws(() => backboard.on('foo', () => {}), /Invalid listener name "foo"/);
+            backboard.emit('quotaexceeded', 'bar');
         });
     });
 });

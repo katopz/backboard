@@ -16,7 +16,7 @@ Returns a promise that resolves to a `DB` instance.
 
 `upgradeCallback` is called if `version` is greater than the version last opened, and it is the only place you can create and delete object stores and indexes. It's similar to an event handler for IndexedDB's `upgradeneeded` event. `upgradeCallback` receives an `UpgradeDB` instance which you can use to perform operations on the database.
 
-    backboard.open('database-name', 2, upgradeDB => {
+    backboard.open('database-name', 2, (err, upgradeDB) => {
             if (upgradeDB.oldVersion <= 0) {
                 const playerStore = upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
                 playerStore.createIndex('tid', 'tid');
@@ -57,12 +57,12 @@ Add handlers to respond to certain events. The current events are `quotaexceeded
     backboard.on('quotaexceeded', event => console.log('Quota exceeded!'));
     backboard.on('blocked', event => console.log('Database connection blocked.'));
 
-### `backboard.off(name, handler)`
+### `backboard.end(name, handler)`
 
 Remove an event handler.
 
     backboard.on('blocked', callback);
-    backboard.off('blocked', callback);
+    backboard.end('blocked', callback);
 
 ## `DB`
 
@@ -135,12 +135,12 @@ Add handlers to respond to certain database-level events. The only current event
 
 Additionally, you can do things like saving data, reloading the page, etc. This is exactly the same as the `versionchange` event in the raw IndexedDB API.
 
-### `db.off(name, handler)`
+### `db.end(name, handler)`
 
 Remove an event handler.
 
     db.on('versionchange', callback);
-    db.off('versionchange', callback);
+    db.end('versionchange', callback);
 
 ### Properties
 

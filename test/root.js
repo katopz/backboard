@@ -3,7 +3,7 @@ import backboard from '../index';
 const checkMicrotaskPromiseResolution = () => {
     let bool = true;
 
-    return backboard.open('test', 1, upgradeDB => {
+    return backboard.open('test', 1, (err, upgradeDB) => {
             upgradeDB.createObjectStore('players', {keyPath: 'pid', autoIncrement: true});
         })
         .then(db => {
@@ -29,10 +29,10 @@ const checkMicrotaskPromiseResolution = () => {
 before(() => {
     // Use fake-indexeddb if real IndexedDB is not available (Node.js), but use real IndexedDB when possible (browser)
     if (typeof indexedDB === 'undefined') {
-        GLOBAL.indexedDB = require('fake-indexeddb');
-        GLOBAL.IDBIndex = require('fake-indexeddb/lib/FDBIndex');
-        GLOBAL.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
-        GLOBAL.IDBObjectStore = require('fake-indexeddb/lib/FDBObjectStore');
+        global.indexedDB = require('fake-indexeddb');
+        global.IDBIndex = require('fake-indexeddb/lib/FDBIndex');
+        global.IDBKeyRange = require('fake-indexeddb/lib/FDBKeyRange');
+        global.IDBObjectStore = require('fake-indexeddb/lib/FDBObjectStore');
     }
 
     require('indexeddb-getall-shim');
